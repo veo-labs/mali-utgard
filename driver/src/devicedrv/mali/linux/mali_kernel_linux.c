@@ -172,7 +172,8 @@ static void mali_miscdevice_unregister(void);
 
 static int mali_open(struct inode *inode, struct file *filp);
 static int mali_release(struct inode *inode, struct file *filp);
-#ifdef HAVE_UNLOCKED_IOCTL
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)) \
+                        || defined (HAVE_UNLOCKED_IOCTL)
 static long mali_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 #else
 static int mali_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg);
@@ -264,7 +265,8 @@ struct file_operations mali_fops = {
 	.owner = THIS_MODULE,
 	.open = mali_open,
 	.release = mali_release,
-#ifdef HAVE_UNLOCKED_IOCTL
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)) \
+                        || defined (HAVE_UNLOCKED_IOCTL)
 	.unlocked_ioctl = mali_ioctl,
 #else
 	.ioctl = mali_ioctl,
@@ -890,7 +892,8 @@ int map_errcode(_mali_osk_errcode_t err)
 	}
 }
 
-#ifdef HAVE_UNLOCKED_IOCTL
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)) \
+                        || defined (HAVE_UNLOCKED_IOCTL)
 static long mali_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 #else
 static int mali_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg)
@@ -899,7 +902,8 @@ static int mali_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, 
 	int err;
 	struct mali_session_data *session_data;
 
-#ifndef HAVE_UNLOCKED_IOCTL
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0)) \
+                        && !defined (HAVE_UNLOCKED_IOCTL)
 	/* inode not used */
 	(void)inode;
 #endif
